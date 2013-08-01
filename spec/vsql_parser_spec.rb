@@ -141,8 +141,16 @@ describe VSqlParser do
       assert_parse("SELECT v FROM table t")
     end
 
+    it "handles quoting" do
+      assert_parse('SELECT v FROM "Table" "T"')
+    end
+
     it "can select from a subquery" do
       assert_parse("SELECT v FROM (SELECT y from table) t")
+    end
+
+    it "can select from multiple tables" do
+      assert_parse('SELECT v FROM table1, table2, table3')
     end
   end
 

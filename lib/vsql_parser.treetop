@@ -180,13 +180,13 @@ grammar VSql
   end
 
   rule from_statement
-    'from' space+ from_expression (space alias)? <Statement>
+    'from' space+ from_expression (expression_separator from_expression)* <Statement>
   end
 
   rule from_expression
-    [\w]+ <Entity>
-    /
-    '(' query ')' <Entity>
+    ( name_expression
+      /
+      '(' query ')' <Entity>) (space alias)?
   end
 
   # matches at least one space. Handles comments, too.
