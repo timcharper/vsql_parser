@@ -46,6 +46,10 @@ describe VSqlParser do
       assert_parse("SELECT table.field FROM table")
     end
 
+    it "is forgiving of whitespace after the period" do
+      assert_parse("SELECT table. field FROM table")
+    end
+
     it "parses string literals" do
       assert_parse("SELECT 'value'")
     end

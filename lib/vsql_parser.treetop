@@ -180,7 +180,7 @@ grammar VSql
   end
 
   rule field_reference
-    (name_expression "." <TablePart>)? (name_expression / field_glob) <FieldRef>
+    (name_expression "." ' '* <TablePart>)? (name_expression / field_glob) <FieldRef>
   end
 
   rule from_statement
