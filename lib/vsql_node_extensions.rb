@@ -7,6 +7,7 @@ module VSql
         case
         when e.is_a?(klass)
           results << e
+          results.concat(find_elements(e, klass, skip_klass))
         when skip_klass && e.is_a?(skip_klass)
           next
         else
