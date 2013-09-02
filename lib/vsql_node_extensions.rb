@@ -18,19 +18,29 @@ module VSql
     end
   end
 
-  class Operator < Treetop::Runtime::SyntaxNode
+  class VSqlSyntaxNode < Treetop::Runtime::SyntaxNode
+    def match(klass)
+      Helpers.find_elements(self, klass)
+    end
+
+    def find(klass)
+      match(klass).first
+    end
   end
 
-  class Statement < Treetop::Runtime::SyntaxNode
+  class Operator < VSqlSyntaxNode
   end
 
-  class SelectStatement < Treetop::Runtime::SyntaxNode
+  class Statement < VSqlSyntaxNode
+  end
+
+  class SelectStatement < VSqlSyntaxNode
     def expressions
       Helpers.find_elements(self, SelectExpression)
     end
   end
 
-  class SelectExpression < Treetop::Runtime::SyntaxNode
+  class SelectExpression < VSqlSyntaxNode
     def expression_sql
     end
 
@@ -58,28 +68,34 @@ module VSql
     end
   end
 
-  class Name < Treetop::Runtime::SyntaxNode
+  class NameExpression < VSqlSyntaxNode
   end
 
-  class FieldRef < Treetop::Runtime::SyntaxNode
+  class FromExpression < VSqlSyntaxNode
   end
 
-  class TablePart < Treetop::Runtime::SyntaxNode
+  class Name < VSqlSyntaxNode
   end
 
-  class FieldGlob < Treetop::Runtime::SyntaxNode
+  class FieldRef < VSqlSyntaxNode
   end
 
-  class Alias < Treetop::Runtime::SyntaxNode
+  class TablePart < VSqlSyntaxNode
   end
 
-  class Function < Treetop::Runtime::SyntaxNode
+  class FieldGlob < VSqlSyntaxNode
+  end
+
+  class Alias < VSqlSyntaxNode
+  end
+
+  class Function < VSqlSyntaxNode
     def name
       elements[0].text_value
     end
   end
 
-  class Entity < Treetop::Runtime::SyntaxNode
+  class Entity < VSqlSyntaxNode
     # def to_array
     #   return self.elements[0].to_array
     # end
@@ -88,12 +104,15 @@ module VSql
   class QuotedEntity < Entity
   end
 
-  class Query < Treetop::Runtime::SyntaxNode
+  class Query < VSqlSyntaxNode
     # def to_array
     #   return self.elements.map {|x| x.to_array}
     # end
     # def select_statement
     #   elements.detect { |e| e.is_a?(SelectStatement) }
     # end
+  end
+
+  class SubQuery < VSqlSyntaxNode
   end
 end

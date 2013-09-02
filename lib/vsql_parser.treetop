@@ -170,9 +170,9 @@ grammar VSql
   end
 
   rule name_expression
-    '"' ([^\"]+ <Name>) '"'
+    '"' ([^\"]+ <Name>) '"' <NameExpression>
     /
-    [\w]+ <Name>
+    ([\w]+ <Name>) <NameExpression>
   end
 
   rule field_glob
@@ -190,7 +190,7 @@ grammar VSql
   rule from_expression
     ( name_expression
       /
-      '(' query ')' <Entity>) (space alias)?
+      '(' query ')' <SubQuery>) (space alias)? <FromExpression>
   end
 
   # matches at least one space. Handles comments, too.
