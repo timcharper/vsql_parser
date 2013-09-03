@@ -12,6 +12,10 @@ module TestChamber
   include Helpers
   extend self
 
+  def pparse(sql, output_errors = true)
+    parse(sql, output_errors).tap { |q| q.prune! }
+  end
+
   def parse(sql, output_errors = true)
     parser = ::VSqlParser.parser
     VSqlParser.parse(sql).tap do |tree|
