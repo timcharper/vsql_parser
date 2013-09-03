@@ -40,5 +40,29 @@ describe "Node Extensions" do
       end
 
     end
+
+    describe "#prune!" do
+      it "preserves non-vanilla nodes" do
+        q = parse("SELECT * FROM table").prune!
+        q.match(VSql::FromExpression).length.should == 1
+      end
+
+      it "removes vanilla nodes" do
+        q = parse("SELECT * FROM table WHERE (value = '1')")
+        q.prune!
+        q.match(Treetop::Runtime::SyntaxNode).select(&:vanilla?).length.should == 0
+      end
+    end
+  end
+
+  context Replaceability do
+    describe "#replace" do
+      it "preserves non-vanilla nodes" do
+        q = parse("SELECT * FROM table WHERE (filter_field = '1')")
+        q.prune!
+        q.gsub!("table", "foo")
+        q.match(VSql::FieldRef).last.text_value.should == "filter_field"
+      end
+    end
   end
 end

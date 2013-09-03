@@ -1,3 +1,83 @@
+module ScanHelpers
+  extend self
+  require 'strscan'
+  def gsub_replacements(string, pattern, replacement)
+    pattern = Regexp.new(Regexp.escape(pattern)) if pattern.is_a?(String)
+    [].tap do |matches|
+      scanner = StringScanner.new(string)
+      until scanner.eos?
+        return matches unless scanner.scan_until(pattern)
+        matches.push([(scanner.pos - scanner.matched_size)..(scanner.pos - 1),
+                      replacement.size - scanner.matched_size,
+                      replacement])
+      end
+    end
+  end
+end
+
+module Replaceability
+  def index_of(str)
+    e.text_value.index(str) + e.interval.first
+  end
+
+  def adjust_intervals!(idx, delta)
+    case
+    when @interval.include?(idx)
+      @interval = (@interval.first)...[@interval.first, @interval.last + delta].max
+    when @interval.first > idx
+      @interval = (@interval.first + delta)...(@interval.last + delta)
+    end
+    elements && elements.each { |e| e.adjust_intervals!(idx, delta) }
+    true
+  end
+
+  def gsub!(pattern, replacement)
+    ScanHelpers.gsub_replacements(text_value, pattern, replacement).reverse.each do |(range, delta, rep_str)|
+      end_idx = (@interval.min + range.max)
+      @input[(@interval.min + range.min)..end_idx] = rep_str
+      root.adjust_intervals!(end_idx, delta)
+    end
+  end
+end
+
+class Treetop::Runtime::SyntaxNode
+  def match(klass = Treetop::Runtime::SyntaxNode)
+    VSql::Helpers.find_elements(self, klass)
+  end
+
+  def find(klass)
+    match(klass).first
+  end
+
+  def delete!
+    parent.elements.delete(self)
+  end
+
+  def vanilla?
+    (self.class == Treetop::Runtime::SyntaxNode) &&
+      (parent && parent.class == Treetop::Runtime::SyntaxNode || text_value.length == 0) &&
+      (elements.nil? || elements.all?(&:vanilla?))
+  end
+
+  def prune_if!(&block)
+    delete! if yield(self)
+  end
+
+  def prune!
+    es = match(Treetop::Runtime::SyntaxNode)
+    es.reverse.each do |e|
+      e.prune_if!(&:vanilla?)
+    end
+    self
+  end
+
+  def root
+    parent ? parent.root : self
+  end
+
+  include Replaceability
+end
+
 module VSql
   module Helpers
     def self.find_elements(node, klass, skip_klass = nil)
@@ -19,13 +99,6 @@ module VSql
   end
 
   class VSqlSyntaxNode < Treetop::Runtime::SyntaxNode
-    def match(klass)
-      Helpers.find_elements(self, klass)
-    end
-
-    def find(klass)
-      match(klass).first
-    end
   end
 
   class Operator < VSqlSyntaxNode
