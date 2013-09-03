@@ -216,7 +216,7 @@ grammar VSql
       'initially' / 'intersect' / 'intervalym' / 'interval' / 'into' / 'in' /
       'join' /
       'ksafe' /
-      'leading' / 'limit' / 'localtimestamp' / 'localtime' /
+      'leading' / 'left' / 'limit' / 'localtimestamp' / 'localtime'
       'match' /
       'new' / 'not' / 'nullsequal' / 'null' /
       'offset' / 'off' / 'old' / 'only' / 'on' / 'order' / 'or' /
