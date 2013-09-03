@@ -41,8 +41,28 @@ module Replaceability
 end
 
 class Treetop::Runtime::SyntaxNode
-  def match(klass = Treetop::Runtime::SyntaxNode)
-    VSql::Helpers.find_elements(self, klass)
+  def _pieces_with_gaps(cursor, elements, results = [])
+    return [cursor, results] if elements.nil? || elements.empty?
+    element, interval, next_elements = elements[0], elements[0].interval, elements[1..-1]
+    next_results = [*results,
+                    *(input[cursor...interval.first] if cursor != elements.first.interval.first),
+                    element]
+    _pieces_with_gaps(interval.last,
+                      next_elements,
+                      next_results)
+  end
+
+  def pieces
+    last_pos, pieces = _pieces_with_gaps(interval.first, elements)
+    if last_pos != interval.last
+      [input[last_pos...(interval.last)], *pieces]
+    else
+      pieces
+    end
+  end
+
+  def match(klass = Treetop::Runtime::SyntaxNode, skip = nil)
+    VSql::Helpers.find_elements(self, klass, skip)
   end
 
   def find(klass)
@@ -73,6 +93,17 @@ class Treetop::Runtime::SyntaxNode
 
   def root
     parent ? parent.root : self
+  end
+
+  def match_nearest(klass)
+    case
+    when parent.nil?
+      nil
+    when parent.is_a?(klass)
+      parent
+    else
+      parent.match_nearest(klass)
+    end
   end
 
   include Replaceability
@@ -107,7 +138,7 @@ module VSql
   class Statement < VSqlSyntaxNode
   end
 
-  class SelectStatement < VSqlSyntaxNode
+  class SelectStatement < Statement
     def expressions
       Helpers.find_elements(self, SelectExpression)
     end
@@ -144,7 +175,28 @@ module VSql
   class NameExpression < VSqlSyntaxNode
   end
 
+  class FromStatement < Statement
+  end
+
   class FromExpression < VSqlSyntaxNode
+  end
+
+  class JoinStatement < Statement
+  end
+
+  class JoinKeyword < VSqlSyntaxNode
+  end
+
+  class WhereStatement < Statement
+  end
+
+  class OrderByStatement < Statement
+  end
+
+  class LimitStatement < Statement
+  end
+
+  class OrderByExpression < VSqlSyntaxNode
   end
 
   class Name < VSqlSyntaxNode
@@ -172,6 +224,9 @@ module VSql
     # def to_array
     #   return self.elements[0].to_array
     # end
+  end
+
+  class Expression < VSqlSyntaxNode
   end
 
   class QuotedEntity < Entity

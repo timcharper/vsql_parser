@@ -41,6 +41,14 @@ describe "Node Extensions" do
 
     end
 
+    describe "#match_nearest" do
+      it "searches up the parents until matching" do
+        q = parse("SELECT field AS f1, (SELECT v AS v1) AS f2 FROM table")
+        n = q.match(VSql::Alias).detect { |e| e.text_value == "v1" }
+        n.match_nearest(VSql::SelectExpression).text_value.should == "v AS v1"
+      end
+    end
+
     describe "#prune!" do
       it "preserves non-vanilla nodes" do
         q = parse("SELECT * FROM table").prune!
@@ -65,4 +73,5 @@ describe "Node Extensions" do
       end
     end
   end
+
 end

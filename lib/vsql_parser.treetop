@@ -20,12 +20,16 @@ grammar VSql
     'select' space (distinct_predicate space)? select_expressions <SelectStatement>
   end
 
+  rule join_keyword
+    ('left' / 'outer' / 'inner' / 'right' / 'full' / space)* 'join' <JoinKeyword>
+  end
+
   rule join_statement
-    ('left' / 'outer' / 'inner' / 'right' / 'full' / space)* 'join' space expression (space alias)? space 'on' space expression
+    join_keyword space expression (space alias)? space 'on' space expression <JoinStatement>
   end
 
   rule where_statement
-    'where' space expression
+    'where' space expression <WhereStatement>
   end
 
   rule having_statement
@@ -41,11 +45,11 @@ grammar VSql
   end
 
   rule order_by_statement
-    'order by' space order_by_expression (expression_separator order_by_expression)* <Statement>
+    'order by' space order_by_expression (expression_separator order_by_expression)* <OrderByStatement>
   end
 
   rule limit_statement
-    'limit' space [0-9]+
+    'limit' space [0-9]+ <LimitStatement>
   end
 
   rule select_expressions
@@ -57,7 +61,7 @@ grammar VSql
   end
 
   rule order_by_expression
-    expression (space ('desc' / 'asc'))?
+    expression (space ('desc' / 'asc'))? <OrderByExpression>
   end
 
   rule select_expression
@@ -84,7 +88,7 @@ grammar VSql
     (space? inline_window)?
     ('::' [\w]+)? # cast
     (space? set_operator space? (set))*
-    (space? operator space? expression)?
+    (space? operator space? expression)? <Expression>
   end
 
   rule prefix_modifier
@@ -184,7 +188,7 @@ grammar VSql
   end
 
   rule from_statement
-    'from' space+ from_expression (expression_separator from_expression)* <Statement>
+    'from' space+ from_expression (expression_separator from_expression)* <FromStatement>
   end
 
   rule from_expression

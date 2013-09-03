@@ -51,9 +51,11 @@ module TestChamber
   def reload
     Object.send(:remove_const, :SqlParser) rescue nil
     Object.send(:remove_const, :Sql) rescue nil
+    Object.send(:remove_const, :VSql) rescue nil
     TestChamber.send(:remove_const, :PARSER) rescue nil
 
     load(File.join(VSQLPARSER_BASE_PATH, 'vsql_node_extensions.rb'))
+    load(File.join(VSQLPARSER_BASE_PATH, 'formatter.rb'))
     Treetop.load(File.join(VSQLPARSER_BASE_PATH, 'vsql_parser.treetop'))
     VSqlParser.extend(VSqlParserHelpers)
     load(__FILE__)

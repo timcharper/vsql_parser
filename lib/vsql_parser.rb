@@ -1,6 +1,7 @@
 # In file parser.rb
 require 'treetop'
 require_relative './vsql_node_extensions.rb'
+require_relative './formatter.rb'
 
 VSQLPARSER_BASE_PATH ||= File.expand_path(File.dirname(__FILE__))
 
