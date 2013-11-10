@@ -155,7 +155,7 @@ grammar VSql
   end
 
   rule operator
-    [+\-/=\|><!]+
+    [+\-\*/=\|><!]+
     /
     ('is not' / 'is' / 'like' / 'between' / 'and' / 'or') &space
   end
