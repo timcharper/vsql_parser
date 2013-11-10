@@ -3,7 +3,7 @@ grammar VSql
   rule query
     space*
     select_statement
-    (space from_statement (space join_statement)*
+    (space from_statement
       (space where_statement)?
       (space group_by_statement)?
       (space having_statement)?
@@ -192,7 +192,7 @@ grammar VSql
   end
 
   rule from_statement
-    'from' space+ from_expression (expression_separator from_expression)* <FromStatement>
+    'from' space+ from_expression (space join_statement / expression_separator from_expression)* <FromStatement>
   end
 
   rule from_expression
